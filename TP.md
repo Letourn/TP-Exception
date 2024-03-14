@@ -343,37 +343,230 @@ catch (OutOfRangeException $ex) {
 
 
 ## Exercice 4
-### Activité 1
+### Activité 1 :
 
 ***Créer la classe Four dans un dossier à part avec ses attributs temperature et tempMax***
 ```php
-class Four
-{
-    public function temperature() {
-
-    }
-
-    public function tempMax()
-    {
-
-    }
+class Four {
+    private $temperature;
+    private $tempMax;
 }
 ```
 
 ***Y ajouter des accesseurs setTemperature et getTemperature***
 
 ```php
-    private function setTemperature ($temp) {
-        $temp = readline ();
-    }
-
-    public function getTemperature ($temp) {
-        echo $temp;
+    private function setTemperature($temperature) {
+        $this->temperature = $temperature;
+    }   
+    public function getTemperature() {
+        return $this->temperature;
     }
 ```
 
 ***Créer un constructeur avec pour paramètre temperature***
 
 ```php 
+    public function __construct($temperature) {
+        $this->SetTemperature($temperature);
+        $this->tempMax = 100;
+    }
+```
 
+
+
+***Créer une méthode ToString() qui retourne une description du four sous la forme: Four : 20°***
+
+```php
+    public function ToString() {
+        return "Four : " . $this->getTemperature() . "°";
+    }
+```
+
+**Voilà ce que donne la classe Four pour le moment**
+```php
+class Four {
+    private $temperature;
+    private $tempMax;
+
+    public function __construct($temperature) {
+        $this->SetTemperature($temperature);
+        $this->tempMax = 100;
+
+    }
+
+    private function setTemperature($temperature) {
+        $this->temperature = $temperature;
+    }
+
+    public function getTemperature() {
+        return $this->temperature;
+    }
+}
+```
+
+***Créer une instance de la classe Four, créez un four à 20° et affichez***
+```php
+// Création d'une instance de la classe Four avec une température de 20°
+$four = new Four(20);
+
+// Affichage du four
+echo $four->ToString() . "\n";
+```
+
+### Activité 2 :
+
+***Créer la méthode Chauffer() permettant d'ajouter des degrés à l'objet Four***
+
+```php
+    // Méthode Chauffer
+    public function Chauffer($degres) {
+        $temperature = $this->temperature + $degres;
+        $this->setTemperature($temperature);
+    }
+```
+
+***Idem pour Refroidir sauf qu’elle diminue la température du four de la valeur de degres***
+
+```php
+    // Méthode Refroidir
+    public function Refroidir($degres) {
+        $temperature = $this->temperature - $degres;
+        $this->setTemperature($temperature);
+    }
+```
+
+***Maintenant faire appel à ces méthodes pour chauffer et refroidir le four et afficher les degrés à chaque fois***
+```php
+// Création d'une instance de la classe Four avec une température de 20°
+$four = new Four(20);
+
+// Affichage du four
+echo $four->ToString() . "\n";
+
+// Chauffer le four de 10°
+$four->Chauffer(20);
+
+// Affichage du four
+echo $four->ToString() . "\n";
+
+// refroidir le four de 10°
+$four->Refroidir(20);
+
+// Affichage du four
+echo $four->ToString() . "\n";
+```
+
+***Ajoutez une méthode AfficherMenu() qui va proposer à l’utilisateur un menu.***
+
+```php
+    public function AfficherMenu(): int
+    {
+        echo("Menu du four \n****\n");
+        echo("1 - chauffer le four\n");
+        echo("2 - refroidir le four\n");
+        echo("3 - quitter \n");
+        return intval( readline() );
+    }
+```
+
+***Maintenant faire appel à cette méthode pour afficher le menu***
+
+```php
+$choix = ' ';
+while ($choix != '3') {
+
+    $four->AfficherMenu();
+
+    $choix = readline()[0];
+    switch ($choix) {
+        case '1':
+            // faire chauffer le four de 10°
+            $four->Chauffer(20); 
+            break;
+        case '2':
+            // refroidir le four de 10°
+            $four->Refroidir(20);
+            break;
+        case '3':
+            echo "Au revoir\n";
+            break;
+        default :
+            echo "Mauvais choix\n";
+            break;
+    }
+    // Affichage du four pour information
+    echo $four->ToString() . "\n";
+}
+```
+
+### Est-il possible de dépasser la température maximale du four ?
+
+Oui c'est possible de dépasser la température maximale
+
+### Activité 4
+
+***Dans un autre fichier, créer la classe TemperatureException qui hérite de Exception, avec ses deux attributs $temp et $tempMax***
+
+```php
+class TemperatureException extends Exception {
+    // Attributs
+    private $temp;
+    private $tempMax;
+}
+```
+
+***Créer les deux accesseurs en lecture GetTemp() et GetTempMax() et son constructeur***
+
+```php 
+    // Constructeur
+    public function __construct($message, $temp, $tempMax) {
+        parent::__construct($message);
+        $this->temp = $temp;
+        $this->tempMax = $tempMax;
+    }
+
+    // Accesseurs
+    public function GetTemp() {
+        return $this->temp;
+    }
+
+    public function GetTempMax() {
+        return $this->tempMax;
+    }
+```
+
+### Dans quelle méthode de la classe Four va-on apporter cette modification ? 
+On doit apporter les modifications à la méthode Chauffer()
+
+***Lancer TemperatureException lorsque la température du four
+dépasse la température maximale***
+
+```php
+    public function Chauffer($degres) {
+        $temperature = $this->temperature + $degres;
+        if ($temperature > $this->tempMax) {
+            throw new TemperatureException("Température maximale dépassée", $temperature, $this->tempMax);
+            // On bloque la température à la température Max
+            $temperature = $this->tempMax;
+            $this->setTemperature($temperature);
+        }
+        else {
+            $this->setTemperature($temperature);
+        }
+    }
+```
+
+***Dans le script principal, il faut donc encadrer l’appel de la méthode qui fait chauffer le four par un bloc try catch.***
+
+```php
+    // faire chauffer le four de 10°
+    // Tester la chauffe avec un bloc try-catch
+    try {
+        $four->Chauffer(20);
+    } catch (TemperatureException $e) {
+        echo "Exception attrapée: " . $e->getMessage() . "\n";
+        echo "Température maximale : " . $e->GetTempMax() . "°\n";
+        echo "Température actuelle : " . $e->GetTemp() . "°\n";
+    };
 ```
